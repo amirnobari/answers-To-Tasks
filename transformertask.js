@@ -661,59 +661,134 @@ const feedbacks = [
     }
 ]
 
-const feedbacksData = feedbacks
+////////////////////////////////////////////////////////////
+
 
 // Task One
-function formatFeedbackList(feedbacks) {
-    return feedbacks.map(feedback => {
-        const { id, data, sortIndex = 0 } = feedback // Use default value for sortIndex
-        return { id, data: { ...data, sortIndex } }
-    })
+function formatFeedbacksForList(feedbacks) {
+    const requiredFields = [
+        "id",
+        "label",
+        "formId",
+        "stepId",
+        "sectionId",
+        "sortIndex",
+        "placeholder",
+        "visibleAccordingTo",
+        "isRequired",
+        "isHidden",
+        "isFullwidth",
+        "type",
+        "minLength",
+        "maxLength",
+    ]
+
+    return feedbacks.map((feedback) => ({
+        id: feedback.id,
+        data: {
+            id: feedback.id,
+            label: feedback.label || "",
+            formId: feedback.formId || "",
+            stepId: feedback.stepId || "",
+            sectionId: feedback.sectionId || "",
+            sortIndex: feedback.sortIndex || 0,
+            placeholder: feedback.placeholder || "",
+            visibleAccordingTo: feedback.visibleAccordingTo || [],
+            isRequired: feedback.isRequired || false,
+            isHidden: feedback.isHidden || false,
+            isFullwidth: feedback.isFullwidth || false,
+            type: feedback.type || "",
+            minLength: feedback.minLength || 0,
+            maxLength: feedback.maxLength || 0,
+        },
+    })).sort((a, b) => a.data.sortIndex - b.data.sortIndex)
 }
 
-// Log results
+// Example usage for Task One
+const formattedFeedbacksForList = formatFeedbacksForList(feedbacks)
 console.log("Task One Result:")
-console.log(formatFeedbackList(feedbacksData))
+console.log(formattedFeedbacksForList)
 
 // Task Two
-function formatFeedbackById(feedback) {
-    const { id, data, sortIndex = 0 } = feedback // Use default value for sortIndex
-    return { id, data: { ...data, sortIndex } }
+function getFeedbackById(id) {
+    return feedbacks.find((feedback) => feedback.id === id)
 }
 
-// Log results
+function formatFeedback(feedback) {
+    if (!feedback) {
+        return null
+    }
+
+    const formattedInputs = feedback.inputs.map((input) => ({
+        // Details related to each input
+        id: input.id,
+        label: input.label,
+        formId: input.formId,
+        stepId: input.stepId,
+        sectionId: input.sectionId,
+        sortIndex: input.sortIndex,
+        placeholder: input.placeholder,
+        visibleAccordingTo: input.visibleAccordingTo,
+        isRequired: input.isRequired,
+        isHidden: input.isHidden,
+        isFullwidth: input.isFullwidth,
+        type: input.type,
+        minLength: input.minLength,
+        maxLength: input.maxLength,
+    }))
+
+    return {
+        id: feedback.id,
+        data: {
+            id: feedback.id,
+            title: feedback.title,
+            relatedMediaId: feedback.relatedMediaId,
+            creator: feedback.creator,
+            isPublic: feedback.isPublic,
+            steps: feedback.steps,
+            sections: feedback.sections,
+            inputs: formattedInputs, // Using formatted input details
+            feedback: {
+                id: feedback.feedback.id,
+                isPublic: feedback.feedback.isPublic,
+                createdAt: feedback.feedback.createdAt,
+                updatedAt: feedback.feedback.updatedAt,
+                isEditable: feedback.feedback.isEditable,
+                values: feedback.feedback.values,
+                title: feedback.feedback.title,
+            },
+        },
+    }
+}
+
+// Example usage for Task Two
+const feedbackById = getFeedbackById("65a25608d6a685e68963ddc3") // Replace with desired ID
+const formattedFeedback = formatFeedback(feedbackById)
 console.log("Task Two Result:")
-console.log(formatFeedbackById(feedbacksData[0])) // Assuming feedbacksData is an array
+console.log(formattedFeedback)
 
-// Optional Task Three
-function filterFeedbackByValues(feedbacks, inputs) {
-    const result = {}
+// OPTIONAL Task Three
+const filteredFeedbacks = feedbacks.filter((feedback) => {
+    const value65a2575fd6a685e68963de13 = feedback.feedback.values["65a2575fd6a685e68963de13"]
+    // Filtering feedbacks with "test" value in the "65a2575fd6a685e68963de13" field
+    return value65a2575fd6a685e68963de13 && value65a2575fd6a685e68963de13.includes("test")
+})
 
-    for (const feedback of feedbacks) {
-        const { id, data } = feedback
-        const valuesKey = `values.${id}`
+// Converting filtered feedbacks to an array of input details
+const result = filteredFeedbacks.map((feedback) => {
+    const inputId = "65a2575fd6a685e68963de13"
+    const correspondingInput = feedback.inputs.find((input) => input.id === inputId)
 
-        if (inputs.hasOwnProperty(valuesKey)) {
-            const inputValues = inputs[valuesKey]
-
-            const concatenatedData = inputValues.map(value => ({
-                value,
-                ...data,
-            }))
-
-            result[id] = concatenatedData
+    // If corresponding input is found, return its details
+    if (correspondingInput) {
+        return {
+            [inputId]: feedback.feedback.values[inputId],
+            ...correspondingInput,
         }
     }
 
-    return result
-}
-
-// Example usage
-const inputObject = {
-    "values.65a25608d6a685e68963ddc3": ["test"],
-}
-
-const taskThreeResult = filterFeedbackByValues(feedbacksData, inputObject)
-console.log("Optional Task Three Result:")
-console.log(taskThreeResult);
-
+    // If corresponding input is not found, return an empty array or perform your desired action
+    return []
+})
+console.log("Task Three Result:")
+console.log(result)
