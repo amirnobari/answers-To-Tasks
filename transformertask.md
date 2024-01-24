@@ -22,4 +22,3 @@ The code filters feedbacks and creates an array with concatenated details, showc
 
 Note: Replace specific IDs and values according to your actual use case.
 
-Feel free to expand on these explanations as needed.
